@@ -6,7 +6,7 @@ import User from '@/models/User';
 export async function GET() {
   try {
     await dbConnect();
-     
+    
     const users = await User.find({}).select('-password'); // Exclude password field
     
     return NextResponse.json({
@@ -28,6 +28,7 @@ export async function GET() {
 }
 
 // POST /api/users - Create a new user
+// Note: Using only Mongoose validation here, Zod schemas are for client-side
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Create new user
+    // Create new user - Mongoose handles validation
     const user = await User.create({
       name,
       email,
@@ -68,13 +69,29 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating user:', error);
     
-    // Handle validation errors
+    // Handle Mongoose validation errors
     if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((err: any) => ({
+        field: err.path,
+        message: err.message,
+      }));
+      
       return NextResponse.json(
         {
           success: false,
           message: 'Validation error',
-          errors: error.errors,
+          errors,
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Handle duplicate key error (unique constraint)
+    if (error.code === 11000) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Email already exists',
         },
         { status: 400 }
       );
