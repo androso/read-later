@@ -8,14 +8,14 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     
     const body = await request.json();
-    const { name, email, password } = body;
+    const { username, email, password } = body;
 
     // Basic required field checks
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Name, email, and password are required',
+          message: 'Username, email, and password are required',
         },
         { status: 400 }
       );
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     
     // Create new user - Mongoose handles validation
     const user = await User.create({
-      name,
+      username,
       email,
       password: hashedPassword,
     });

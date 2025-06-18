@@ -2,13 +2,13 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 import { z } from 'zod';
 
 export const CreateUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(50, 'Name cannot exceed 50 characters'),
+  username: z.string().min(1, 'Username is required').max(50, 'Username cannot exceed 50 characters'),
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export const UpdateUserSchema = z.object({
-  name: z.string().min(1).max(50).optional(),
+  username: z.string().min(1).max(50).optional(),
   email: z.string().email().optional(),
 });
 
@@ -18,7 +18,7 @@ export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 
 // ✅ Mongoose interface & schema for server-side DB operations
 export interface IUser extends Document {
-  name: string;
+  username: string;
   email: string;
   password?: string;
   createdAt: Date;
@@ -27,11 +27,11 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema(
   {
-    name: {
+    username: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, 'Username is required'],
       trim: true,
-      maxLength: [50, 'Name cannot be more than 50 characters'],
+      maxLength: [50, 'Username cannot be more than 50 characters'],
     },
     email: {
       type: String,

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     
     const body = await request.json();
-    const { name, email, password, role } = body;
+    const { username, email, password, role } = body;
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     
     // Create new user - Mongoose handles validation
     const user = await User.create({
-      name,
+      username,
       email,
       password,
       role: role || 'user',
