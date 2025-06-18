@@ -18,6 +18,16 @@ export const SignInSchema = z.object({
     .min(6, 'Password must be at least 6 characters'),
 });
 
+export const SignUpSchema = z.object({
+  username: z.string().min(1, 'Username is required').max(50, 'Username cannot exceed 50 characters'),
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export const UpdateUserSchema = z.object({
   username: z.string().min(1).max(50).optional(),
   email: z.string().email().optional(),
@@ -26,4 +36,5 @@ export const UpdateUserSchema = z.object({
 // Infer types from Zod schemas
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 export type SignInUser = z.infer<typeof SignInSchema>;
+export type SignUpUser = z.infer<typeof SignUpSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>; 
