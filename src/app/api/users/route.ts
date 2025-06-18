@@ -70,8 +70,9 @@ export async function POST(request: NextRequest) {
     console.error('Error creating user:', error);
     
     // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err: any) => ({
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const mongooseError = error as any; // Cast for Mongoose-specific properties
+      const errors = Object.values(mongooseError.errors).map((err: any) => ({
         field: err.path,
         message: err.message,
       }));
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Handle duplicate key error (unique constraint)
-    if (error.code === 11000) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json(
         {
           success: false,
