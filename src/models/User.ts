@@ -1,20 +1,4 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { z } from 'zod';
-
-export const CreateUserSchema = z.object({
-  username: z.string().min(1, 'Username is required').max(50, 'Username cannot exceed 50 characters'),
-  email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-export const UpdateUserSchema = z.object({
-  username: z.string().min(1).max(50).optional(),
-  email: z.string().email().optional(),
-});
-
-// Infer types from Zod schemas
-export type CreateUser = z.infer<typeof CreateUserSchema>;
-export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 
 // ✅ Mongoose interface & schema for server-side DB operations
 export interface IUser extends Document {
