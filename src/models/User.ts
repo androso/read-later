@@ -5,14 +5,12 @@ export const CreateUserSchema = z.object({
   name: z.string().min(1, 'Name is required').max(50, 'Name cannot exceed 50 characters'),
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['user', 'admin']).optional(),
 });
 
 export const UpdateUserSchema = z.object({
   name: z.string().min(1).max(50).optional(),
   email: z.string().email().optional(),
   avatar: z.string().url().optional(),
-  role: z.enum(['user', 'admin']).optional(),
   isEmailVerified: z.boolean().optional(),
 });
 
@@ -26,7 +24,6 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   avatar?: string;
-  role: 'user' | 'admin';
   isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -59,11 +56,6 @@ const UserSchema: Schema<IUser> = new Schema(
     avatar: {
       type: String,
       default: null,
-    },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
     },
     isEmailVerified: {
       type: Boolean,
