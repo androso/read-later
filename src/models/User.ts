@@ -10,8 +10,6 @@ export const CreateUserSchema = z.object({
 export const UpdateUserSchema = z.object({
   name: z.string().min(1).max(50).optional(),
   email: z.string().email().optional(),
-  avatar: z.string().url().optional(),
-  isEmailVerified: z.boolean().optional(),
 });
 
 // Infer types from Zod schemas
@@ -23,8 +21,6 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
-  avatar?: string;
-  isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,14 +48,6 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       minLength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't include password in queries by default
-    },
-    avatar: {
-      type: String,
-      default: null,
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
     },
   },
   {
