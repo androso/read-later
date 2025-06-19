@@ -1,18 +1,31 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import Bookmark from '@/models/Bookmark';
+import Tag from '@/models/Tag';
+import Collection from '@/models/Collection';
 
 export async function GET() {
   try {
     await dbConnect();
     
-    // Test the connection by counting users
-    const userCount = await User.countDocuments();
+    // Test the connection by counting documents in each collection
+    const [userCount, bookmarkCount, tagCount, collectionCount] = await Promise.all([
+      User.countDocuments(),
+      Bookmark.countDocuments(),
+      Tag.countDocuments(),
+      Collection.countDocuments(),
+    ]);
     
     return NextResponse.json({
       success: true,
       message: 'Database connected successfully',
-      userCount,
+      counts: {
+        users: userCount,
+        bookmarks: bookmarkCount,
+        tags: tagCount,
+        collections: collectionCount,
+      },
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
