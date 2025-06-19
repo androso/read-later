@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SignInSchema, type SignInUser } from '@/lib/validations/user';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,6 +21,8 @@ import {
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const { loginMutation } = useAuth();
   
   const form = useForm<SignInUser>({
     resolver: zodResolver(SignInSchema),
@@ -30,18 +34,12 @@ export default function SignInPage() {
   });
 
   const onSubmit = async (data: SignInUser) => {
-    try {
-      // TODO: Connect to login API
-      console.log('Sign in form submitted:', data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Handle successful login here
-    } catch (error) {
-      console.error('Login error:', error);
-      // Handle login error here
-    }
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        // Redirect to dashboard on successful login
+        router.push('/dashboard');
+      },
+    });
   };
 
   return (
@@ -119,14 +117,14 @@ export default function SignInPage() {
             {/* Sign In Button */}
             <Button
               type="submit"
-              disabled={form.formState.isSubmitting}
+              disabled={loginMutation.isPending}
               className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                form.formState.isSubmitting
+                loginMutation.isPending
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed hover:bg-gray-400'
                   : 'bg-[#4a3b2e] text-white hover:bg-[#3d3024] hover:shadow-lg'
               }`}
             >
-              {form.formState.isSubmitting ? (
+              {loginMutation.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-gray-200 border-t-transparent rounded-full animate-spin" />
                   Signing In...
@@ -140,6 +138,13 @@ export default function SignInPage() {
                 </>
               )}
             </Button>
+
+            {/* Display error message if login fails */}
+            {loginMutation.isError && (
+              <div className="text-red-600 text-center text-sm">
+                {loginMutation.error?.message || 'Login failed. Please try again.'}
+              </div>
+            )}
           </form>
         </Form>
 
