@@ -1,6 +1,45 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    // Redirect to dashboard if user is already authenticated
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading while checking authentication status
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#4a3b2e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4a3b2e]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the landing page if user is authenticated (will redirect)
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#4a3b2e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4a3b2e]">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">
