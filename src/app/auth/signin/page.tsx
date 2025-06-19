@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
@@ -22,7 +22,7 @@ import {
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { loginMutation } = useAuth();
+  const { isAuthenticated, isLoading, loginMutation } = useAuth();
   
   const form = useForm<SignInUser>({
     resolver: zodResolver(SignInSchema),
@@ -33,6 +33,13 @@ export default function SignInPage() {
     },
   });
 
+  useEffect(() => {
+    // Redirect to dashboard if user is already authenticated
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   const onSubmit = async (data: SignInUser) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
@@ -41,6 +48,30 @@ export default function SignInPage() {
       },
     });
   };
+
+  // Show loading while checking authentication status
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#4a3b2e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4a3b2e]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the signin form if user is authenticated (will redirect)
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#4a3b2e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4a3b2e]">Already signed in. Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
