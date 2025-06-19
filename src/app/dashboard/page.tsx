@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading, logoutMutation } = useAuth();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -15,6 +15,13 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.push('/auth/signin');
+      }
+    });
+  };
 
   // Show loading if checking authentication status
   if (isLoading) {
@@ -38,6 +45,30 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#f5f3f0] p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8">
+          {/* Header with logout button */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-[#4a3b2e]">Dashboard</h1>
+            <button
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            >
+              {logoutMutation.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Logging out...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </>
+              )}
+            </button>
+          </div>
+
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <h2 className="text-lg font-semibold text-green-800 mb-2">
               🎉 Authentication Successful!
