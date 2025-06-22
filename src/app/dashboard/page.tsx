@@ -229,11 +229,11 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Add Bookmark Button */}
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors">
+            {/* Add Bookmark Button - Commented out for now */}
+            {/* <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors">
               <Plus className="w-5 h-5" />
               <span>Add Bookmark</span>
-            </button>
+            </button> */}
 
             {/* Logout Button */}
             <button
@@ -254,11 +254,12 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex">
+      {/* Commented out sidebar for now */}
+      {/* <div className="flex"> */}
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] overflow-y-auto">
+        {/* <aside className="w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] overflow-y-auto">
           <div className="p-6">
-            {/* Smart Collections */}
+            Smart Collections
             <div className="mb-8">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
                 Smart Collections
@@ -283,7 +284,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Popular Tags */}
+            Popular Tags
             <div className="mb-8">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
                 Popular Tags
@@ -304,7 +305,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Filters */}
+            Filters
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
                 Filters
@@ -325,10 +326,10 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </aside>
+        </aside> */}
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
+        {/* Main Content - Now takes full width */}
+        <main className="p-6">
           {/* Content Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -413,7 +414,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </main>
-      </div>
+      {/* </div> */}
     </div>
   );
 } 
