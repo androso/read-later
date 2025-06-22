@@ -71,7 +71,7 @@ export const updateCollectionSchema = z.object({
 
 // Query validation schemas
 export const bookmarkQuerySchema = z.object({
-  page: z.string().regex(/^\d+$/).transform(Number).optional(),
+  cursor: z.string().optional(), // Cursor for infinite scroll (typically ObjectId)
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
   sort: z.enum(['createdAt', '-createdAt', 'title', '-title']).optional(),
   search: z.string().optional(),
@@ -82,7 +82,6 @@ export const bookmarkQuerySchema = z.object({
   maxReadingTime: z.string().regex(/^\d+$/).transform(Number).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
-  fetchAll: z.string().transform(val => val === 'true').optional(),
 });
 
 export type CreateBookmarkInput = z.infer<typeof createBookmarkSchema>;
