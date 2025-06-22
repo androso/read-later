@@ -371,7 +371,13 @@ export default function DashboardPage() {
                 }
 
                 return (
-                  <div key={bookmark._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                  <a 
+                    key={bookmark._id} 
+                    href={bookmark.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer block"
+                  >
                     {/* Bookmark Image */}
                     <div className="aspect-video bg-gradient-to-br from-indigo-500 to-purple-600 relative">
                       {bookmark.isUnread && (
@@ -415,7 +421,7 @@ export default function DashboardPage() {
                         Added {daysAgo === 0 ? 'today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}
                       </div>
                     </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>
