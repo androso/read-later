@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Link, Tag, FileText, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Link, Tag, FileText, Clock, Loader2 } from 'lucide-react';
 import { useCreateBookmark } from '@/lib/hooks/useBookmarks';
+import { useMetadata } from '@/lib/hooks/useMetadata';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
 interface AddBookmarkModalProps {
   isOpen: boolean;
@@ -19,8 +21,46 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
     tags: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [metadataPreview, setMetadataPreview] = useState<{
+    title?: string;
+    description?: string;
+    image?: string;
+  } | null>(null);
 
   const createBookmarkMutation = useCreateBookmark();
+  const { fetchMetadata, isLoading: isLoadingMetadata, error: metadataError } = useMetadata();
+  
+  // Debounce URL input for metadata fetching
+  const debouncedUrl = useDebounce(formData.url, 1000);
+
+  // Fetch metadata when URL changes
+  useEffect(() => {
+    const fetchUrlMetadata = async () => {
+      if (debouncedUrl && debouncedUrl.trim()) {
+        try {
+          new URL(debouncedUrl);
+          const metadata = await fetchMetadata(debouncedUrl);
+          if (metadata) {
+            setMetadataPreview(metadata);
+            
+            // Auto-populate fields if they're empty
+            setFormData(prev => ({
+              ...prev,
+              title: prev.title || metadata.title || '',
+              description: prev.description || metadata.description || '',
+            }));
+          }
+        } catch (error) {
+          // Invalid URL, do nothing
+          setMetadataPreview(null);
+        }
+      } else {
+        setMetadataPreview(null);
+      }
+    };
+
+    fetchUrlMetadata();
+  }, [debouncedUrl, fetchMetadata]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -74,6 +114,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
           tags: '',
         });
         setErrors({});
+        setMetadataPreview(null);
         // Call onSuccess if provided, otherwise just close
         if (onSuccess) {
           onSuccess();
@@ -108,6 +149,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
       tags: '',
     });
     setErrors({});
+    setMetadataPreview(null);
     onClose();
   };
 
@@ -136,19 +178,53 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
               <Link className="w-4 h-4 inline mr-2" />
               URL *
             </label>
-            <input
-              type="url"
-              id="url"
-              name="url"
-              value={formData.url}
-              onChange={handleInputChange}
-              placeholder="https://example.com/article"
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                errors.url ? 'border-red-300' : 'border-gray-300'
-              }`}
-              disabled={createBookmarkMutation.isPending}
-            />
+            <div className="relative">
+              <input
+                type="url"
+                id="url"
+                name="url"
+                value={formData.url}
+                onChange={handleInputChange}
+                placeholder="https://example.com/article"
+                className={`w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  errors.url ? 'border-red-300' : 'border-gray-300'
+                }`}
+                disabled={createBookmarkMutation.isPending}
+              />
+              {isLoadingMetadata && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+                </div>
+              )}
+            </div>
             {errors.url && <p className="text-red-500 text-sm mt-1">{errors.url}</p>}
+            {metadataError && <p className="text-orange-500 text-sm mt-1">Could not fetch page info</p>}
+            
+            {/* Metadata Preview */}
+            {metadataPreview && metadataPreview.image && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
+                <div className="flex items-start space-x-3">
+                  <img
+                    src={metadataPreview.image}
+                    alt="Preview"
+                    className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {metadataPreview.title}
+                    </p>
+                    {metadataPreview.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                        {metadataPreview.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Title Field */}

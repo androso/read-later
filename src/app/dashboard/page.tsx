@@ -370,6 +370,9 @@ export default function DashboardPage() {
                   domain = bookmark.url;
                 }
 
+                // Debug: Log bookmark data to see what's in the image field
+                console.log('Bookmark:', bookmark._id, 'Image:', bookmark.image, 'Title:', bookmark.title);
+
                 return (
                   <a 
                     key={bookmark._id} 
@@ -379,15 +382,55 @@ export default function DashboardPage() {
                     className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer block"
                   >
                     {/* Bookmark Image */}
-                    <div className="aspect-video bg-gradient-to-br from-indigo-500 to-purple-600 relative">
+                    <div className="aspect-video relative overflow-hidden">
+                      {/* Background Image */}
+                      {bookmark.image ? (
+                        <>
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center bg-no-repeat "
+                            style={{ backgroundImage: `url("${bookmark.image}")` }}
+                          />
+                          {/* Fallback image element for better error handling */}
+                          <img
+                            src={bookmark.image}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover opacity-0"
+                            onLoad={(e) => {
+                              // Hide the gradient and show the background image
+                              const target = e.target as HTMLImageElement;
+                              const parent = target.parentElement;
+                              const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
+                              if (gradientDiv) gradientDiv.style.display = 'none';
+                            }}
+                            onError={(e) => {
+                              console.error('Failed to load image:', bookmark.image);
+                              // Show gradient fallback on error
+                              const target = e.target as HTMLImageElement;
+                              const parent = target.parentElement;
+                              const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
+                              if (gradientDiv) gradientDiv.style.display = 'block';
+                            }}
+                          />
+                          {/* Gradient fallback that's initially hidden */}
+                          <div className="gradient-fallback absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
+                      )}
+                      
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-black opacity-5"></div>
+                      
+                      {/* Unread Badge */}
                       {bookmark.isUnread && (
-                        <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-medium text-indigo-600">
+                        <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-medium text-indigo-600 backdrop-blur-sm">
                           Unread
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+                      
+                      {/* Title Overlay */}
                       <div className="absolute bottom-4 left-4 right-4">
-                        <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-lg p-3">
+                        <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-3 shadow-sm">
                           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
                             {bookmark.title}
                           </h3>

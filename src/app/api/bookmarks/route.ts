@@ -159,10 +159,40 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const validatedData = createBookmarkSchema.parse(body);
 
+		// Fetch OG metadata if title or image is not provided
+		let finalData = { ...validatedData };
+		if (!validatedData.title || !validatedData.image) {
+			try {
+				const metadataResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/metadata`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ url: validatedData.url }),
+				});
+
+				if (metadataResponse.ok) {
+					const metadataResult = await metadataResponse.json();
+					if (metadataResult.success && metadataResult.data) {
+						// Use fetched metadata if not provided in request
+						finalData = {
+							...finalData,
+							title: validatedData.title || metadataResult.data.title || validatedData.url,
+							description: validatedData.description || metadataResult.data.description,
+							image: validatedData.image || metadataResult.data.image,
+						};
+					}
+				}
+			} catch (error) {
+				console.warn('Failed to fetch metadata for URL:', validatedData.url, error);
+				// Continue with original data if metadata fetch fails
+			}
+		}
+
 		// Handle tags - create new ones if they don't exist
 		const tagIds = [];
-		if (validatedData.tags && validatedData.tags.length > 0) {
-			for (const tagInput of validatedData.tags) {
+		if (finalData.tags && finalData.tags.length > 0) {
+			for (const tagInput of finalData.tags) {
 				let tag;
 
 				// Check if it's an ID or a name
@@ -190,12 +220,12 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Validate collections exist and belong to user
-		if (validatedData.collections && validatedData.collections.length > 0) {
+		if (finalData.collections && finalData.collections.length > 0) {
 			const collections = await Collection.find({
-				_id: { $in: validatedData.collections },
+				_id: { $in: finalData.collections },
 				user: userId,
 			});
-			if (collections.length !== validatedData.collections.length) {
+			if (collections.length !== finalData.collections.length) {
 				return NextResponse.json(
 					{
 						success: false,
@@ -208,10 +238,10 @@ export async function POST(request: NextRequest) {
 
 		// Create bookmark
 		const bookmark = await Bookmark.create({
-			...validatedData,
+			...finalData,
 			user: userId,
 			tags: tagIds,
-			collections: validatedData.collections || [],
+			collections: finalData.collections || [],
 		});
 
 		// Populate references before returning
