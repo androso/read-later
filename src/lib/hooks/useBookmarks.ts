@@ -23,6 +23,20 @@ interface BookmarksResponse {
   };
 }
 
+// Helper function to make authenticated requests
+const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('auth-token');
+  
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+  });
+};
+
 export function useBookmarks(params: BookmarkQueryParams = {}) {
   const queryKey = ['bookmarks', params];
 
@@ -39,9 +53,7 @@ export function useBookmarks(params: BookmarkQueryParams = {}) {
       if (params.cursor) searchParams.append('cursor', params.cursor);
       if (params.limit) searchParams.append('limit', params.limit.toString());
 
-      const response = await fetch(`/api/bookmarks?${searchParams.toString()}`, {
-        credentials: 'include',
-      });
+      const response = await makeAuthenticatedRequest(`/api/bookmarks?${searchParams.toString()}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch bookmarks');
@@ -57,9 +69,7 @@ export function useBookmarkCount() {
   return useQuery<{ success: boolean; count: number }>({
     queryKey: ['bookmarks', 'count'],
     queryFn: async () => {
-      const response = await fetch('/api/bookmarks/count', {
-        credentials: 'include',
-      });
+      const response = await makeAuthenticatedRequest('/api/bookmarks/count');
 
       if (!response.ok) {
         throw new Error('Failed to fetch bookmark count');
@@ -84,12 +94,8 @@ export function useCreateBookmark() {
       tags?: string[];
       collections?: string[];
     }) => {
-      const response = await fetch('/api/bookmarks', {
+      const response = await makeAuthenticatedRequest('/api/bookmarks', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -112,9 +118,8 @@ export function useDeleteBookmark() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/bookmarks/${id}`, {
+      const response = await makeAuthenticatedRequest(`/api/bookmarks/${id}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -148,12 +153,8 @@ export function useUpdateBookmark() {
         collections?: string[];
       };
     }) => {
-      const response = await fetch(`/api/bookmarks/${id}`, {
+      const response = await makeAuthenticatedRequest(`/api/bookmarks/${id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
 

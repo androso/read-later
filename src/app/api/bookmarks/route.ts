@@ -154,7 +154,6 @@ export async function POST(request: NextRequest) {
 	try {
 		// User ID is guaranteed to be set by middleware
 		const userId = request.headers.get("x-user-id")!;
-
 		await dbConnect();
 
 		const body = await request.json();

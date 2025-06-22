@@ -1,14 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+	const pathname = request.nextUrl.pathname;
+	console.log(`[Middleware] Processing request to: ${pathname}`);
+	
+	// Check if this is a protected API route
+	const protectedRoutes = ['/api/bookmarks', '/api/tags', '/api/collections', '/api/users'];
+	const isProtected = protectedRoutes.some(route => 
+		pathname === route || pathname.startsWith(route + '/')
+	);
+	
+	if (!isProtected) {
+		console.log(`[Middleware] Route ${pathname} is not protected, skipping`);
+		return NextResponse.next();
+	}
+	
 	// Get token from Authorization header
 	const authHeader = request.headers.get("authorization");
 	const token = authHeader?.startsWith("Bearer ")
 		? authHeader.substring(7)
 		: null;
+	console.log({token})
+	console.log(`[Middleware] Auth header present: ${!!authHeader}, Token extracted: ${!!token}`);
 
 	if (!token) {
+		console.log(`[Middleware] No token provided for ${pathname}`);
 		return NextResponse.json(
 			{ success: false, message: "No token provided" },
 			{ status: 401 }
@@ -26,11 +43,15 @@ export function middleware(request: NextRequest) {
 	}
 
 	try {
-		const decoded = jwt.verify(token, jwtSecret) as { userId: string };
+		const secret = new TextEncoder().encode(jwtSecret);
+		const { payload } = await jwtVerify(token, secret);
+		const decoded = payload as { userId: string };
+		console.log(`[Middleware] JWT decoded successfully. User ID: ${decoded.userId}`);
 
 		// Add user ID to headers so route handlers can access it
 		const requestHeaders = new Headers(request.headers);
 		requestHeaders.set("x-user-id", decoded.userId);
+		console.log(`[Middleware] Added x-user-id header: ${decoded.userId}`);
 
 		return NextResponse.next({
 			request: {
@@ -38,6 +59,7 @@ export function middleware(request: NextRequest) {
 			},
 		});
 	} catch (jwtError) {
+		console.log(`[Middleware] JWT verification failed:`, jwtError);
 		return NextResponse.json(
 			{ success: false, message: "Invalid or expired token" },
 			{ status: 401 }
@@ -46,10 +68,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-	matcher: [
-		"/api/bookmarks/:path*",
-		"/api/tags/:path*",
-		"/api/collections/:path*",
-		"/api/users/:path*",
-	],
+	matcher: "/api/:path*",
 };

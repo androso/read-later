@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBookmarks, useBookmarkCount } from '@/lib/hooks/useBookmarks';
-import { Search, Plus, Grid3X3, List } from 'lucide-react';
+import { Search, Plus, Grid3X3, List, CheckCircle } from 'lucide-react';
 import { BookmarkResponse } from '@/types/bookmark';
 import { useDebounce } from '@/lib/hooks/useDebounce';
+import AddBookmarkModal from '@/components/AddBookmarkModal';
 
 // Removed fake data - now using real API
 
@@ -34,6 +35,8 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('-createdAt');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   
   // Debounce search query for API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -55,6 +58,16 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  // Auto-hide success notification after 3 seconds
+  useEffect(() => {
+    if (showSuccessNotification) {
+      const timer = setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessNotification]);
+
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
@@ -71,6 +84,19 @@ export default function DashboardPage() {
       'title-desc': '-title',
     };
     setSortBy(sortMap[e.target.value] || '-createdAt');
+  };
+
+  const handleAddBookmark = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleBookmarkAdded = () => {
+    setIsAddModalOpen(false);
+    setShowSuccessNotification(true);
   };
 
   // Show loading if checking authentication status
@@ -152,11 +178,14 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Add Bookmark Button - Commented out for now */}
-            {/* <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors">
+            {/* Add Bookmark Button */}
+            <button 
+              onClick={handleAddBookmark}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors"
+            >
               <Plus className="w-5 h-5" />
               <span>Add Bookmark</span>
-            </button> */}
+            </button>
 
             {/* Logout Button */}
             <button
@@ -393,6 +422,24 @@ export default function DashboardPage() {
           )}
         </main>
       {/* </div> */}
+
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50 flex items-center space-x-3">
+          <CheckCircle className="w-5 h-5 text-green-600" />
+          <div>
+            <p className="text-green-800 font-medium">Bookmark added successfully!</p>
+            <p className="text-green-600 text-sm">Your bookmark has been saved to your collection.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Add Bookmark Modal */}
+      <AddBookmarkModal 
+        isOpen={isAddModalOpen} 
+        onClose={handleCloseAddModal}
+        onSuccess={handleBookmarkAdded}
+      />
     </div>
   );
 }
