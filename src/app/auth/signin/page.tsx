@@ -78,7 +78,7 @@ export default function SignInPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h1 className="text-center text-3xl font-bold text-[#4a3b2e] mb-8">
-            Sign In To Mentarie
+            Sign In To Read-later 
           </h1>
         </div>
 

@@ -82,6 +82,7 @@ export const bookmarkQuerySchema = z.object({
   maxReadingTime: z.string().regex(/^\d+$/).transform(Number).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
+  fetchAll: z.string().transform(val => val === 'true').optional(),
 });
 
 export type CreateBookmarkInput = z.infer<typeof createBookmarkSchema>;

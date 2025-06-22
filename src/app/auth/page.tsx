@@ -6,7 +6,7 @@ export default function AuthPage() {
       <div className="max-w-md w-full space-y-8 text-center">
         <div>
           <h1 className="text-4xl font-bold text-[#4a3b2e] mb-8">
-            Welcome to Mentarie
+            Welcome to Read-later 
           </h1>
           <p className="text-gray-600 mb-8">
             Choose an option to continue
