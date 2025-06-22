@@ -427,19 +427,14 @@ export default function DashboardPage() {
                           Unread
                         </div>
                       )}
-                      
-                      {/* Title Overlay */}
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-3 shadow-sm">
-                          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
-                            {bookmark.title}
-                          </h3>
-                        </div>
-                      </div>
                     </div>
 
                     {/* Bookmark Content */}
                     <div className="p-4">
+                      {/* Title */}
+                      <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 mb-2">
+                        {bookmark.title}
+                      </h3>
                       {bookmark.description && (
                         <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                           {bookmark.description}
