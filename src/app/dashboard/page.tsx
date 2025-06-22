@@ -1,111 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useBookmarks, useBookmarkCount } from '@/lib/hooks/useBookmarks';
 import { Search, Plus, Grid3X3, List } from 'lucide-react';
+import { BookmarkResponse } from '@/types/bookmark';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
-// Fake data for bookmarks
-const fakeBookmarks = [
-  {
-    id: 1,
-    title: "Building Modern React Applications with TypeScript",
-    description: "A comprehensive guide to building scalable React applications using TypeScript best practices and modern development workflows.",
-    url: "https://medium.com",
-    domain: "medium.com",
-    image: "/api/placeholder/400/200",
-    readingTime: "8 min read",
-    tags: ["React", "TypeScript", "JavaScript"],
-    addedDays: 2,
-    isUnread: false
-  },
-  {
-    id: 2,
-    title: "Attention Is All You Need: Transformer Architecture Explained",
-    description: "Deep dive into the groundbreaking transformer architecture that revolutionized machine learning and natural language processing.",
-    url: "https://arxiv.org",
-    domain: "arxiv.org",
-    image: "/api/placeholder/400/200",
-    readingTime: "15 min read",
-    tags: ["AI", "Machine Learning", "Research"],
-    addedDays: 7,
-    isUnread: true
-  },
-  {
-    id: 3,
-    title: "Design Systems: Building Consistent User Experiences",
-    description: "Learn how to create and maintain design systems that scale across teams and products for better user experience.",
-    url: "https://uxdesign.cc",
-    domain: "uxdesign.cc",
-    image: "/api/placeholder/400/200",
-    readingTime: "6 min read",
-    tags: ["Design", "UX", "Systems"],
-    addedDays: 3,
-    isUnread: false
-  },
-  {
-    id: 4,
-    title: "The Ultimate Productivity Setup for Developers in 2024",
-    description: "Discover the tools, techniques, and workflows that top developers use to maximize their productivity and efficiency.",
-    url: "https://hashnode.com",
-    domain: "hashnode.com",
-    image: "/api/placeholder/400/200",
-    readingTime: "4 min read",
-    tags: ["Productivity", "Tools", "Workflow"],
-    addedDays: 5,
-    isUnread: false
-  },
-  {
-    id: 5,
-    title: "Kubernetes Best Practices: Scaling Applications in Production",
-    description: "Essential strategies and patterns for deploying and scaling containerized applications using Kubernetes in production environments.",
-    url: "https://k8s.io",
-    domain: "k8s.io",
-    image: "/api/placeholder/400/200",
-    readingTime: "12 min read",
-    tags: ["Kubernetes", "DevOps", "Production"],
-    addedDays: 1,
-    isUnread: true
-  },
-  {
-    id: 6,
-    title: "Web Performance Optimization: Core Web Vitals Guide",
-    description: "Complete guide to optimizing web performance metrics, improving Core Web Vitals, and delivering faster user experiences.",
-    url: "https://web.dev",
-    domain: "web.dev",
-    image: "/api/placeholder/400/200",
-    readingTime: "10 min read",
-    tags: ["Performance", "Web", "Optimization"],
-    addedDays: 4,
-    isUnread: false
-  },
-  {
-    id: 7,
-    title: "Zero Trust Security: Modern Approach to Cybersecurity",
-    description: "Understanding zero trust architecture and how to implement security best practices in modern distributed systems.",
-    url: "https://security.com",
-    domain: "security.com",
-    image: "/api/placeholder/400/200",
-    readingTime: "8 min read",
-    tags: ["Security", "Architecture", "Best Practices"],
-    addedDays: 2,
-    isUnread: true
-  },
-  {
-    id: 8,
-    title: "From Idea to Product: A Startup's Journey",
-    description: "Real-world insights into building a successful startup from initial concept to market launch and beyond.",
-    url: "https://startup.com",
-    domain: "startup.com",
-    image: "/api/placeholder/400/200",
-    readingTime: "7 min read",
-    tags: ["Startup", "Entrepreneurship", "Product"],
-    addedDays: 6,
-    isUnread: false
-  }
-];
+// Removed fake data - now using real API
 
-// Smart collections data
+// Smart collections data - keeping for now as it's not in the API yet
 const smartCollections = [
   { name: "All Bookmarks", count: 247, active: true, icon: "⭐" },
   { name: "Most Read This Month", count: 12, active: false, icon: "🔥" },
@@ -114,7 +19,7 @@ const smartCollections = [
   { name: "Unread", count: 156, active: false, icon: "📖" }
 ];
 
-// Popular tags data
+// Popular tags data - keeping for now as it's not in the API yet
 const popularTags = [
   { name: "JavaScript", count: 42 },
   { name: "Design", count: 38 },
@@ -128,6 +33,20 @@ export default function DashboardPage() {
   const { isAuthenticated, user, isLoading, logoutMutation } = useAuth();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('-createdAt');
+  
+  // Debounce search query for API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  
+  // Fetch bookmarks from API
+  const { data: bookmarksData, isLoading: isLoadingBookmarks } = useBookmarks({
+    search: debouncedSearchQuery,
+    sort: sortBy,
+    limit: 20,
+  });
+  
+  // Fetch bookmark count
+  const { data: countData } = useBookmarkCount();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -142,6 +61,16 @@ export default function DashboardPage() {
         router.push('/auth/signin');
       }
     });
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const sortMap: Record<string, string> = {
+      'date-desc': '-createdAt',
+      'date-asc': 'createdAt',
+      'title-asc': 'title',
+      'title-desc': '-title',
+    };
+    setSortBy(sortMap[e.target.value] || '-createdAt');
   };
 
   // Show loading if checking authentication status
@@ -162,40 +91,34 @@ export default function DashboardPage() {
     );
   }
 
-  const TagBadge = ({ tag }: { tag: string }) => {
-    const tagColors: Record<string, string> = {
-      'React': 'bg-blue-100 text-blue-800',
-      'TypeScript': 'bg-blue-100 text-blue-800',
-      'JavaScript': 'bg-yellow-100 text-yellow-800',
-      'AI': 'bg-purple-100 text-purple-800',
-      'Machine Learning': 'bg-purple-100 text-purple-800',
-      'Research': 'bg-gray-100 text-gray-800',
-      'Design': 'bg-green-100 text-green-800',
-      'UX': 'bg-green-100 text-green-800',
-      'Systems': 'bg-green-100 text-green-800',
-      'Productivity': 'bg-pink-100 text-pink-800',
-      'Tools': 'bg-pink-100 text-pink-800',
-      'Workflow': 'bg-pink-100 text-pink-800',
-      'Kubernetes': 'bg-cyan-100 text-cyan-800',
-      'DevOps': 'bg-cyan-100 text-cyan-800',
-      'Production': 'bg-cyan-100 text-cyan-800',
-      'Performance': 'bg-orange-100 text-orange-800',
-      'Web': 'bg-orange-100 text-orange-800',
-      'Optimization': 'bg-orange-100 text-orange-800',
-      'Security': 'bg-red-100 text-red-800',
-      'Architecture': 'bg-red-100 text-red-800',
-      'Best Practices': 'bg-red-100 text-red-800',
-      'Startup': 'bg-indigo-100 text-indigo-800',
-      'Entrepreneurship': 'bg-indigo-100 text-indigo-800',
-      'Product': 'bg-indigo-100 text-indigo-800'
+  const TagBadge = ({ tag }: { tag: { _id: string; name: string; color?: string } }) => {
+    const defaultColors: Record<string, string> = {
+      'react': 'bg-blue-100 text-blue-800',
+      'typescript': 'bg-blue-100 text-blue-800',
+      'javascript': 'bg-yellow-100 text-yellow-800',
+      'ai': 'bg-purple-100 text-purple-800',
+      'machine learning': 'bg-purple-100 text-purple-800',
+      'design': 'bg-green-100 text-green-800',
+      'ux': 'bg-green-100 text-green-800',
+      'productivity': 'bg-pink-100 text-pink-800',
+      'kubernetes': 'bg-cyan-100 text-cyan-800',
+      'devops': 'bg-cyan-100 text-cyan-800',
+      'performance': 'bg-orange-100 text-orange-800',
+      'security': 'bg-red-100 text-red-800',
+      'startup': 'bg-indigo-100 text-indigo-800',
     };
 
+    const colorClass = tag.color || defaultColors[tag.name.toLowerCase()] || 'bg-gray-100 text-gray-800';
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${tagColors[tag] || 'bg-gray-100 text-gray-800'}`}>
-        {tag}
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+        {tag.name}
       </span>
     );
   };
+
+  const bookmarks = bookmarksData?.data || [];
+  const totalCount = countData?.count || 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -334,7 +257,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">All Bookmarks</h2>
-              <p className="text-gray-600">247 items</p>
+              <p className="text-gray-600">{totalCount} items</p>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -363,58 +286,113 @@ export default function DashboardPage() {
               </div>
 
               {/* Sort Dropdown */}
-              <select className="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option>Sort by Date Added</option>
-                <option>Sort by Title</option>
-                <option>Sort by Reading Time</option>
-                <option>Sort by Domain</option>
+              <select 
+                onChange={handleSortChange}
+                className="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="date-desc">Sort by Date Added (Newest)</option>
+                <option value="date-asc">Sort by Date Added (Oldest)</option>
+                <option value="title-asc">Sort by Title (A-Z)</option>
+                <option value="title-desc">Sort by Title (Z-A)</option>
               </select>
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoadingBookmarks && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading bookmarks...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoadingBookmarks && bookmarks.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📚</span>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchQuery ? 'No bookmarks found' : 'No bookmarks yet'}
+              </h3>
+              <p className="text-gray-600">
+                {searchQuery 
+                  ? 'Try adjusting your search terms' 
+                  : 'Start adding bookmarks to build your reading list'}
+              </p>
+            </div>
+          )}
+
           {/* Bookmarks Grid */}
-          <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
-            {fakeBookmarks.map((bookmark) => (
-              <div key={bookmark.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                {/* Bookmark Image */}
-                <div className="aspect-video bg-gradient-to-br from-indigo-500 to-purple-600 relative">
-                  <div className="absolute inset-0 bg-black bg-opacity-10"></div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-lg p-3">
-                      <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
-                        {bookmark.title}
-                      </h3>
+          {!isLoadingBookmarks && bookmarks.length > 0 && (
+            <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+              {bookmarks.map((bookmark: BookmarkResponse) => {
+                const createdDate = new Date(bookmark.createdAt);
+                const daysAgo = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+                
+                // Extract domain from URL
+                let domain = '';
+                try {
+                  const url = new URL(bookmark.url);
+                  domain = url.hostname.replace('www.', '');
+                } catch {
+                  domain = bookmark.url;
+                }
+
+                return (
+                  <div key={bookmark._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                    {/* Bookmark Image */}
+                    <div className="aspect-video bg-gradient-to-br from-indigo-500 to-purple-600 relative">
+                      {bookmark.isUnread && (
+                        <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-medium text-indigo-600">
+                          Unread
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-lg p-3">
+                          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
+                            {bookmark.title}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bookmark Content */}
+                    <div className="p-4">
+                      {bookmark.description && (
+                        <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                          {bookmark.description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                        <span>{domain}</span>
+                        {bookmark.readingTime && <span>{bookmark.readingTime}</span>}
+                      </div>
+
+                      {/* Tags */}
+                      {bookmark.tags && bookmark.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {bookmark.tags.map((tag) => (
+                            <TagBadge key={tag._id} tag={tag} />
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="text-xs text-gray-500">
+                        Added {daysAgo === 0 ? 'today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Bookmark Content */}
-                <div className="p-4">
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                    {bookmark.description}
-                  </p>
-
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                    <span>{bookmark.domain}</span>
-                    <span>{bookmark.readingTime}</span>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {bookmark.tags.map((tag) => (
-                      <TagBadge key={tag} tag={tag} />
-                    ))}
-                  </div>
-
-                  <div className="text-xs text-gray-500">
-                    Added {bookmark.addedDays} day{bookmark.addedDays !== 1 ? 's' : ''} ago
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </main>
       {/* </div> */}
     </div>
   );
-} 
+}
