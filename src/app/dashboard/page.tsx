@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useBookmarks, useBookmarkCount } from '@/lib/hooks/useBookmarks';
+import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import AddBookmarkModal from '@/components/AddBookmarkModal';
 import {
@@ -39,6 +39,11 @@ export default function DashboardPage() {
   const [sortBy, setSortBy] = useState('-createdAt');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
+  
+  // Selection state
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedBookmarks, setSelectedBookmarks] = useState(new Set<string>());
   
   // Debounce search query for API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -52,6 +57,10 @@ export default function DashboardPage() {
   
   // Fetch bookmark count
   const { data: countData } = useBookmarkCount();
+  
+  // Delete mutations
+  const deleteBookmarkMutation = useDeleteBookmark();
+  const bulkDeleteMutation = useBulkDeleteBookmarks();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -98,6 +107,10 @@ export default function DashboardPage() {
 
   const handleBookmarkAdded = () => {
     setIsAddModalOpen(false);
+    setSuccessMessage({
+      title: 'Bookmark added successfully!',
+      message: 'Your bookmark has been saved to your collection.'
+    });
     setShowSuccessNotification(true);
   };
 
@@ -107,6 +120,72 @@ export default function DashboardPage() {
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
     setViewMode(mode);
+  };
+
+  const handleToggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedBookmarks(new Set());
+  };
+
+  const handleSelectionChange = (id: string, selected: boolean) => {
+    setSelectedBookmarks(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (bookmarks.length > 0) {
+      setSelectedBookmarks(new Set(bookmarks.map(b => b._id)));
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedBookmarks(new Set());
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedBookmarks.size === 0) return;
+
+    if (confirm(`Are you sure you want to delete ${selectedBookmarks.size} bookmark(s)? This action cannot be undone.`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedBookmarks), {
+        onSuccess: (response) => {
+          const deletedCount = response.data.deletedCount;
+          setSelectedBookmarks(new Set());
+          setIsSelectionMode(false);
+          setSuccessMessage({
+            title: `${deletedCount} bookmark(s) deleted successfully!`,
+            message: 'The selected bookmarks have been removed from your collection.'
+          });
+          setShowSuccessNotification(true);
+        },
+        onError: (error) => {
+          alert(`Failed to delete bookmarks: ${error.message}`);
+        }
+      });
+    }
+  };
+
+  const handleDeleteBookmark = (id: string) => {
+    if (confirm('Are you sure you want to delete this bookmark? This action cannot be undone.')) {
+      deleteBookmarkMutation.mutate(id, {
+        onSuccess: () => {
+          setSuccessMessage({
+            title: 'Bookmark deleted successfully!',
+            message: 'The bookmark has been removed from your collection.'
+          });
+          setShowSuccessNotification(true);
+        },
+        onError: (error) => {
+          alert(`Failed to delete bookmark: ${error.message}`);
+        }
+      });
+    }
   };
 
   // Show loading if checking authentication status
@@ -140,6 +219,13 @@ export default function DashboardPage() {
         onAddBookmark={handleAddBookmark}
         onLogout={handleLogout}
         isLoggingOut={logoutMutation.isPending}
+        isSelectionMode={isSelectionMode}
+        selectedCount={selectedBookmarks.size}
+        onToggleSelectionMode={handleToggleSelectionMode}
+        onDeleteSelected={handleDeleteSelected}
+        onSelectAll={handleSelectAll}
+        onClearSelection={handleClearSelection}
+        isDeleting={bulkDeleteMutation.isPending}
       />
 
       {/* Main Content */}
@@ -158,11 +244,19 @@ export default function DashboardPage() {
           isLoading={isLoadingBookmarks}
           viewMode={viewMode}
           searchQuery={searchQuery}
+          isSelectionMode={isSelectionMode}
+          selectedBookmarks={selectedBookmarks}
+          onSelectionChange={handleSelectionChange}
+          onDeleteBookmark={handleDeleteBookmark}
         />
       </main>
 
       {/* Success Notification */}
-      <SuccessNotification show={showSuccessNotification} />
+      <SuccessNotification 
+        show={showSuccessNotification} 
+        title={successMessage.title}
+        message={successMessage.message}
+      />
 
       {/* Add Bookmark Modal */}
       <AddBookmarkModal 

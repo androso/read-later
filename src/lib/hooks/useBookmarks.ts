@@ -123,7 +123,31 @@ export function useDeleteBookmark() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete bookmark');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete bookmark');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+  });
+}
+
+export function useBulkDeleteBookmarks() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await makeAuthenticatedRequest('/api/bookmarks', {
+        method: 'DELETE',
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete bookmarks');
       }
 
       return response.json();

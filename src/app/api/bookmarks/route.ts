@@ -286,3 +286,51 @@ export async function POST(request: NextRequest) {
 		);
 	}
 }
+
+// DELETE /api/bookmarks - Delete multiple bookmarks
+export async function DELETE(request: NextRequest) {
+	try {
+		// User ID is guaranteed to be set by middleware
+		const userId = request.headers.get("x-user-id")!;
+		await dbConnect();
+
+		const body = await request.json();
+		const { ids } = body;
+
+		if (!ids || !Array.isArray(ids) || ids.length === 0) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: "No bookmark IDs provided",
+				},
+				{ status: 400 }
+			);
+		}
+
+		// Delete bookmarks, ensuring they belong to the user
+		const result = await Bookmark.deleteMany({
+			_id: { $in: ids },
+			user: userId,
+		});
+
+		return NextResponse.json({
+			success: true,
+			message: `${result.deletedCount} bookmark(s) deleted successfully`,
+			data: { 
+				deletedCount: result.deletedCount,
+				requestedCount: ids.length 
+			},
+		});
+	} catch (error) {
+		console.error("Error deleting bookmarks:", error);
+
+		return NextResponse.json(
+			{
+				success: false,
+				message: "Failed to delete bookmarks",
+				error: error instanceof Error ? error.message : "Unknown error",
+			},
+			{ status: 500 }
+		);
+	}
+}

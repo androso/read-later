@@ -6,13 +6,21 @@ interface BookmarkGridProps {
   isLoading: boolean;
   viewMode: 'grid' | 'list';
   searchQuery: string;
+  isSelectionMode?: boolean;
+  selectedBookmarks?: Set<string>;
+  onSelectionChange?: (id: string, selected: boolean) => void;
+  onDeleteBookmark?: (id: string) => void;
 }
 
 export default function BookmarkGrid({ 
   bookmarks, 
   isLoading, 
   viewMode, 
-  searchQuery 
+  searchQuery,
+  isSelectionMode = false,
+  selectedBookmarks = new Set(),
+  onSelectionChange,
+  onDeleteBookmark
 }: BookmarkGridProps) {
   // Loading State
   if (isLoading) {
@@ -49,7 +57,14 @@ export default function BookmarkGrid({
   return (
     <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
       {bookmarks.map((bookmark) => (
-        <BookmarkCard key={bookmark._id} bookmark={bookmark} />
+        <BookmarkCard 
+          key={bookmark._id} 
+          bookmark={bookmark}
+          isSelectionMode={isSelectionMode}
+          isSelected={selectedBookmarks.has(bookmark._id)}
+          onSelectionChange={onSelectionChange}
+          onDelete={onDeleteBookmark}
+        />
       ))}
     </div>
   );
