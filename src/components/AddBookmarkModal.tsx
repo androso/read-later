@@ -26,6 +26,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
     description?: string;
     image?: string;
   } | null>(null);
+  const [lastFetchedUrl, setLastFetchedUrl] = useState<string>('');
 
   const createBookmarkMutation = useCreateBookmark();
   const { fetchMetadata, isLoading: isLoadingMetadata, error: metadataError } = useMetadata();
@@ -36,31 +37,36 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
   // Fetch metadata when URL changes
   useEffect(() => {
     const fetchUrlMetadata = async () => {
-      if (debouncedUrl && debouncedUrl.trim()) {
-        try {
-          new URL(debouncedUrl);
-          const metadata = await fetchMetadata(debouncedUrl);
-          if (metadata) {
-            setMetadataPreview(metadata);
-            
-            // Auto-populate fields if they're empty
-            setFormData(prev => ({
-              ...prev,
-              title: prev.title || metadata.title || '',
-              description: prev.description || metadata.description || '',
-            }));
-          }
-        } catch (error) {
-          // Invalid URL, do nothing
+      // Skip if we already fetched this URL or if it's empty
+      if (!debouncedUrl || !debouncedUrl.trim() || debouncedUrl === lastFetchedUrl) {
+        if (!debouncedUrl || !debouncedUrl.trim()) {
           setMetadataPreview(null);
         }
-      } else {
+        return;
+      }
+
+      try {
+        new URL(debouncedUrl);
+        setLastFetchedUrl(debouncedUrl);
+        const metadata = await fetchMetadata(debouncedUrl);
+        if (metadata) {
+          setMetadataPreview(metadata);
+          
+          // Auto-populate fields if they're empty
+          setFormData(prev => ({
+            ...prev,
+            title: prev.title || metadata.title || '',
+            description: prev.description || metadata.description || '',
+          }));
+        }
+      } catch (error) {
+        // Invalid URL, do nothing
         setMetadataPreview(null);
       }
     };
 
     fetchUrlMetadata();
-  }, [debouncedUrl, fetchMetadata]);
+  }, [debouncedUrl, fetchMetadata, lastFetchedUrl]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -150,6 +156,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
     });
     setErrors({});
     setMetadataPreview(null);
+    setLastFetchedUrl('');
     onClose();
   };
 
