@@ -309,47 +309,47 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="p-4 sm:p-6">
         {/* Section Tabs */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => handleSectionChange('all')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
                   currentSection === 'all'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                All Bookmarks
-                <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs">
+                <span>All Bookmarks</span>
+                <span className="bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
                   {allCount}
                 </span>
               </button>
               <button
                 onClick={() => handleSectionChange('unread')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
                   currentSection === 'unread'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Unread
-                <span className="ml-2 bg-blue-100 text-blue-900 py-0.5 px-2.5 rounded-full text-xs">
+                <span>Unread</span>
+                <span className="bg-blue-100 text-blue-900 py-0.5 px-2 rounded-full text-xs">
                   {unreadCount}
                 </span>
               </button>
               <button
                 onClick={() => handleSectionChange('read')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
                   currentSection === 'read'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Read
-                <span className="ml-2 bg-green-100 text-green-900 py-0.5 px-2.5 rounded-full text-xs">
+                <span>Read</span>
+                <span className="bg-green-100 text-green-900 py-0.5 px-2 rounded-full text-xs">
                   {readCount}
                 </span>
               </button>

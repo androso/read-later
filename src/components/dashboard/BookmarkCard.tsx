@@ -93,9 +93,9 @@ export default function BookmarkCard({
       >
         {/* Selection Checkbox */}
         {isSelectionMode && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
             <div 
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer ${
+              className={`w-6 h-6 sm:w-5 sm:h-5 rounded border-2 flex items-center justify-center cursor-pointer touch-target ${
                 isSelected 
                   ? 'bg-indigo-600 border-indigo-600' 
                   : 'bg-white border-gray-300 hover:border-indigo-400'
@@ -103,7 +103,7 @@ export default function BookmarkCard({
               onClick={handleSelectionClick}
             >
               {isSelected && (
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               )}
@@ -113,12 +113,12 @@ export default function BookmarkCard({
 
         {/* Action Buttons (visible when not in selection mode) */}
         {!isSelectionMode && (
-          <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex gap-1 sm:gap-2">
             {/* Mark as Read Button (only show for unread bookmarks) */}
             {bookmark.isUnread && onMarkAsRead && (
               <button
                 onClick={handleMarkAsReadClick}
-                className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-8 sm:h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors touch-target"
                 title="Mark as read"
               >
                 <BookOpen className="w-4 h-4" />
@@ -129,7 +129,7 @@ export default function BookmarkCard({
             {!bookmark.isUnread && onMarkAsUnread && (
               <button
                 onClick={handleMarkAsUnreadClick}
-                className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-8 sm:h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors touch-target"
                 title="Mark as unread"
               >
                 <BookmarkCheck className="w-4 h-4" />
@@ -140,7 +140,7 @@ export default function BookmarkCard({
             {onDelete && (
               <button
                 onClick={handleDeleteClick}
-                className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-8 sm:h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors touch-target"
                 title="Delete bookmark"
               >
                 <Trash2 className="w-4 h-4" />
@@ -199,25 +199,25 @@ export default function BookmarkCard({
         </div>
 
         {/* Bookmark Content */}
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {/* Title */}
-          <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 mb-2">
+          <h3 className="font-semibold text-gray-900 text-base sm:text-lg leading-tight line-clamp-2 mb-2">
             {bookmark.title}
           </h3>
           {bookmark.description && (
-            <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+            <p className="text-gray-600 text-sm line-clamp-2 mb-2 sm:mb-3">
               {bookmark.description}
             </p>
           )}
 
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-            <span>{domain}</span>
-            {bookmark.readingTime && <span>{bookmark.readingTime}</span>}
+          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">
+            <span className="truncate mr-2">{domain}</span>
+            {bookmark.readingTime && <span className="whitespace-nowrap">{bookmark.readingTime}</span>}
           </div>
 
           {/* Tags */}
           {bookmark.tags && bookmark.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
+            <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
               {bookmark.tags.map((tag) => (
                 <TagBadge key={tag._id} tag={tag} />
               ))}
@@ -273,25 +273,25 @@ export default function BookmarkCard({
             </div>
 
             {/* Bookmark Content */}
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               {/* Title */}
-              <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 mb-2">
+              <h3 className="font-semibold text-gray-900 text-base sm:text-lg leading-tight line-clamp-2 mb-2">
                 {bookmark.title}
               </h3>
               {bookmark.description && (
-                <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                <p className="text-gray-600 text-sm line-clamp-2 mb-2 sm:mb-3">
                   {bookmark.description}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                <span>{domain}</span>
-                {bookmark.readingTime && <span>{bookmark.readingTime}</span>}
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">
+                <span className="truncate mr-2">{domain}</span>
+                {bookmark.readingTime && <span className="whitespace-nowrap">{bookmark.readingTime}</span>}
               </div>
 
               {/* Tags */}
               {bookmark.tags && bookmark.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-3">
+                <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
                   {bookmark.tags.map((tag) => (
                     <TagBadge key={tag._id} tag={tag} />
                   ))}
@@ -306,47 +306,47 @@ export default function BookmarkCard({
         )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialog - Mobile optimized */}
       {showDeleteDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full">
+          <div className="bg-white rounded-xl max-w-md w-full mx-4">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Delete Bookmark</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Delete Bookmark</h2>
               </div>
               <button
                 onClick={handleCancelDelete}
-                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                className="text-gray-400 hover:text-gray-600 transition-colors touch-target p-1"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <p className="text-gray-600 mb-4">
+            <div className="p-4 sm:p-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-4">
                 Are you sure you want to delete <span className="font-medium">"{bookmark.title}"</span>? 
                 This action cannot be undone.
               </p>
               
               {/* Bookmark Preview */}
-              <div className="bg-gray-50 rounded-lg p-3 mb-6">
+              <div className="bg-gray-50 rounded-lg p-3 mb-4 sm:mb-6">
                 <div className="flex items-start gap-3">
                   {bookmark.image ? (
                     <img
                       src={bookmark.image}
                       alt=""
-                      className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                      className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg flex-shrink-0"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex-shrink-0" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
@@ -360,16 +360,16 @@ export default function BookmarkCard({
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleCancelDelete}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors touch-target text-center"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmDelete}
-                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 bg-red-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 touch-target"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete

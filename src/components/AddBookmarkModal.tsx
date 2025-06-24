@@ -164,21 +164,21 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Add Bookmark</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add Bookmark</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors touch-target p-1"
             disabled={createBookmarkMutation.isPending}
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-5">
           {/* URL Field */}
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-2">
@@ -193,7 +193,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
                 value={formData.url}
                 onChange={handleInputChange}
                 placeholder="https://example.com/article"
-                className={`w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-3 py-3 sm:py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base sm:text-sm ${
                   errors.url ? 'border-red-300' : 'border-gray-300'
                 }`}
                 disabled={createBookmarkMutation.isPending}
@@ -214,7 +214,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
                   <img
                     src={metadataPreview.image}
                     alt="Preview"
-                    className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
@@ -247,7 +247,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Article title"
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base sm:text-sm ${
                 errors.title ? 'border-red-300' : 'border-gray-300'
               }`}
               disabled={createBookmarkMutation.isPending}
@@ -267,7 +267,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
               onChange={handleInputChange}
               placeholder="Brief description of the content..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base sm:text-sm resize-none"
               disabled={createBookmarkMutation.isPending}
             />
           </div>
@@ -285,7 +285,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
               value={formData.readingTime}
               onChange={handleInputChange}
               placeholder="5 min read"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base sm:text-sm"
               disabled={createBookmarkMutation.isPending}
             />
           </div>
@@ -303,10 +303,10 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
               value={formData.tags}
               onChange={handleInputChange}
               placeholder="javascript, react, tutorial"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base sm:text-sm"
               disabled={createBookmarkMutation.isPending}
             />
-            <p className="text-sm text-gray-500 mt-1">Separate tags with commas</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">Separate tags with commas</p>
           </div>
 
           {/* Error Message */}
@@ -317,11 +317,11 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
           )}
 
           {/* Buttons */}
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors touch-target text-center"
               disabled={createBookmarkMutation.isPending}
             >
               Cancel
@@ -329,7 +329,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
             <button
               type="submit"
               disabled={createBookmarkMutation.isPending}
-              className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-indigo-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2 touch-target"
             >
               {createBookmarkMutation.isPending ? (
                 <>
