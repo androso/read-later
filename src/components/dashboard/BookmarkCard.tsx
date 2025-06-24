@@ -1,4 +1,5 @@
 import { BookmarkResponse } from '@/types/bookmark';
+import Image from 'next/image';
 import TagBadge from './TagBadge';
 import { Trash2, BookOpen, AlertTriangle, X, BookmarkCheck } from 'lucide-react';
 import { useState } from 'react';
@@ -90,6 +91,7 @@ export default function BookmarkCard({
             : 'border-gray-200'
         }`}
         onClick={handleCardClick}
+        data-bookmark-id={bookmark._id}
       >
         {/* Selection Checkbox */}
         {isSelectionMode && (
@@ -167,26 +169,26 @@ export default function BookmarkCard({
                 style={{ backgroundImage: `url("${bookmark.image}")` }}
               />
               {/* Fallback image element for better error handling */}
-              <img
-                src={bookmark.image}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-0"
-                onLoad={(e) => {
-                  // Hide the gradient and show the background image
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
-                  if (gradientDiv) gradientDiv.style.display = 'none';
-                }}
-                onError={(e) => {
-                  console.error('Failed to load image:', bookmark.image);
-                  // Show gradient fallback on error
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
-                  if (gradientDiv) gradientDiv.style.display = 'block';
-                }}
-              />
+              <div className="absolute inset-0 w-full h-full opacity-0">
+                <Image
+                  src={bookmark.image}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  onLoad={() => {
+                    // Hide the gradient and show the background image
+                    const gradientDiv = document.querySelector(`[data-bookmark-id="${bookmark._id}"] .gradient-fallback`) as HTMLElement;
+                    if (gradientDiv) gradientDiv.style.display = 'none';
+                  }}
+                  onError={() => {
+                    console.error('Failed to load image:', bookmark.image);
+                    // Show gradient fallback on error
+                    const gradientDiv = document.querySelector(`[data-bookmark-id="${bookmark._id}"] .gradient-fallback`) as HTMLElement;
+                    if (gradientDiv) gradientDiv.style.display = 'block';
+                  }}
+                />
+              </div>
               {/* Gradient fallback that's initially hidden */}
               <div className="gradient-fallback absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
             </>
@@ -241,26 +243,26 @@ export default function BookmarkCard({
                     style={{ backgroundImage: `url("${bookmark.image}")` }}
                   />
                   {/* Fallback image element for better error handling */}
-                  <img
-                    src={bookmark.image}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover opacity-0"
-                    onLoad={(e) => {
-                      // Hide the gradient and show the background image
-                      const target = e.target as HTMLImageElement;
-                      const parent = target.parentElement;
-                      const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
-                      if (gradientDiv) gradientDiv.style.display = 'none';
-                    }}
-                    onError={(e) => {
-                      console.error('Failed to load image:', bookmark.image);
-                      // Show gradient fallback on error
-                      const target = e.target as HTMLImageElement;
-                      const parent = target.parentElement;
-                      const gradientDiv = parent?.querySelector('.gradient-fallback') as HTMLElement;
-                      if (gradientDiv) gradientDiv.style.display = 'block';
-                    }}
-                  />
+                  <div className="absolute inset-0 w-full h-full opacity-0">
+                    <Image
+                      src={bookmark.image}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      onLoad={() => {
+                        // Hide the gradient and show the background image
+                        const gradientDiv = document.querySelector(`[data-bookmark-id="${bookmark._id}"] .gradient-fallback`) as HTMLElement;
+                        if (gradientDiv) gradientDiv.style.display = 'none';
+                      }}
+                      onError={() => {
+                        console.error('Failed to load image:', bookmark.image);
+                        // Show gradient fallback on error
+                        const gradientDiv = document.querySelector(`[data-bookmark-id="${bookmark._id}"] .gradient-fallback`) as HTMLElement;
+                        if (gradientDiv) gradientDiv.style.display = 'block';
+                      }}
+                    />
+                  </div>
                   {/* Gradient fallback that's initially hidden */}
                   <div className="gradient-fallback absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
                 </>
@@ -337,14 +339,22 @@ export default function BookmarkCard({
               <div className="bg-gray-50 rounded-lg p-3 mb-4 sm:mb-6">
                 <div className="flex items-start gap-3">
                   {bookmark.image ? (
-                    <img
-                      src={bookmark.image}
-                      alt=""
-                      className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg flex-shrink-0"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
+                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bookmark-preview-image">
+                      <Image
+                        src={bookmark.image}
+                        alt=""
+                        fill
+                        className="object-cover rounded-lg"
+                        sizes="(max-width: 640px) 40px, 48px"
+                        onError={() => {
+                          // Handle error by hiding the image container
+                          const container = document.querySelector(`[data-bookmark-id="${bookmark._id}"] .bookmark-preview-image`);
+                          if (container) {
+                            (container as HTMLElement).style.display = 'none';
+                          }
+                        }}
+                      />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex-shrink-0" />
                   )}

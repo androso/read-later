@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X, Link, Tag, FileText, Clock, Loader2 } from 'lucide-react';
 import { useCreateBookmark } from '@/lib/hooks/useBookmarks';
 import { useMetadata } from '@/lib/hooks/useMetadata';
@@ -211,14 +212,22 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
             {metadataPreview && metadataPreview.image && (
               <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
                 <div className="flex items-start space-x-3">
-                  <img
-                    src={metadataPreview.image}
-                    alt="Preview"
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 metadata-preview-image">
+                    <Image
+                      src={metadataPreview.image}
+                      alt="Preview"
+                      fill
+                      className="object-cover rounded-lg"
+                      sizes="(max-width: 640px) 48px, 64px"
+                      onError={() => {
+                        // Handle error by hiding the image container
+                        const container = document.querySelector('.metadata-preview-image');
+                        if (container) {
+                          (container as HTMLElement).style.display = 'none';
+                        }
+                      }}
+                    />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {metadataPreview.title}
