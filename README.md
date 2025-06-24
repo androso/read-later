@@ -217,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **GitHub**: [Repository](https://github.com/yourusername/read-later)
-- **Live Demo**: [https://read-later-demo.vercel.app](https://read-later-demo.vercel.app)
+- **Live Demo**: [https://read-later-lilac.vercel.app](https://read-later-lilac.vercel.app)
 - **Documentation**: [Full API Docs](https://read-later-demo.vercel.app/docs)
 
 ---
