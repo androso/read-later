@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead, useMarkAsUnread } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -296,7 +297,6 @@ export default function DashboardPage() {
         user={user}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
-        onAddBookmark={handleAddBookmark}
         onLogout={handleLogout}
         isLoggingOut={logoutMutation.isPending}
         isSelectionMode={isSelectionMode}
@@ -309,11 +309,11 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <main className="p-4 sm:p-6">
-        {/* Section Tabs */}
-        <div className="mb-4 sm:mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
+      <main className="px-3 sm:px-4 lg:px-6 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Navigation */}
+          <div className="mb-6">
+            <nav className="flex space-x-8 border-b border-gray-200">
               <button
                 onClick={() => handleSectionChange('all')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
@@ -322,11 +322,12 @@ export default function DashboardPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <span>All Bookmarks</span>
+                <span>All</span>
                 <span className="bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
                   {allCount}
                 </span>
               </button>
+              
               <button
                 onClick={() => handleSectionChange('unread')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
@@ -336,10 +337,11 @@ export default function DashboardPage() {
                 }`}
               >
                 <span>Unread</span>
-                <span className="bg-blue-100 text-blue-900 py-0.5 px-2 rounded-full text-xs">
+                <span className="bg-yellow-100 text-yellow-900 py-0.5 px-2 rounded-full text-xs">
                   {unreadCount}
                 </span>
               </button>
+              
               <button
                 onClick={() => handleSectionChange('read')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors touch-target flex items-center space-x-2 ${
@@ -362,6 +364,7 @@ export default function DashboardPage() {
           totalCount={currentCount}
           sectionTitle={getSectionTitle()}
           onSortChange={handleSortChange}
+          onAddBookmark={handleAddBookmark}
         />
 
         {/* Bookmarks Grid */}
