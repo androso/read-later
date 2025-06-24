@@ -210,80 +210,70 @@ export default function DashboardHeader({
 
         {/* Desktop/Tablet Header */}
         <div className="hidden sm:block">
-          <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+          <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-0 xl:flex-row xl:items-center xl:justify-between">
             
-            {/* Top row: Logo + User/Logout */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">📚</span>
-                </div>
-                <h1 className="text-xl font-semibold text-gray-900">Bookmarks</h1>
-              </div>
 
-              {/* User info and Logout - always visible */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-600" />
-                  </div>
-                  <span>Welcome, <span className="font-medium text-gray-900">{user?.username}</span></span>
-                </div>
-                
+            {/* Top row: Logout + Logo */}
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between lg:space-y-0">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                {/* Logout Button - positioned before logo */}
                 <button
                   onClick={onLogout}
                   disabled={isLoggingOut}
-                  className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 touch-target"
+                  className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white p-2 sm:p-2.5 rounded-lg transition-colors flex items-center justify-center touch-target"
+                  title={isLoggingOut ? "Logging out..." : "Logout"}
                 >
                   {isLoggingOut ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Logging out...
-                    </>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <>
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </>
+                    <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
+
+                {/* Logo and Title */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-base sm:text-lg">📚</span>
+                  </div>
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900">Bookmarks</h1>
+                </div>
               </div>
             </div>
 
             {/* Second row: Search + Actions */}
-            <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-y-0 md:space-x-4 lg:flex-row">
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 md:space-x-4 lg:space-x-6 xl:flex-shrink-0">
               {isSelectionMode ? (
                 <>
                   {/* Selection Mode Controls */}
-                  <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-3 bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-200">
-                    <span className="text-sm font-medium text-indigo-900 text-center md:text-left">
+                  <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 bg-indigo-50 px-3 py-2 sm:px-4 rounded-lg border border-indigo-200">
+                    <span className="text-xs sm:text-sm font-medium text-indigo-900 text-center sm:text-left whitespace-nowrap">
                       {selectedCount} selected
                     </span>
                     
-                    <div className="flex items-center justify-center space-x-3">
+                    <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                       {selectedCount > 0 && (
                         <>
                           <button
                             onClick={() => onDeleteSelected?.()}
                             disabled={isDeleting}
-                            className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-2 rounded text-sm flex items-center space-x-1 transition-colors touch-target"
+                            className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-2 py-1.5 sm:px-3 sm:py-2 rounded text-xs sm:text-sm flex items-center space-x-1 transition-colors touch-target"
                           >
                             {isDeleting ? (
                               <>
                                 <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
-                                <span>Deleting...</span>
+                                <span className="hidden sm:inline">Deleting...</span>
                               </>
                             ) : (
                               <>
                                 <Trash2 className="w-3 h-3" />
-                                <span>Delete</span>
+                                <span className="hidden sm:inline">Delete</span>
                               </>
                             )}
                           </button>
                           
                           <button
                             onClick={() => onClearSelection?.()}
-                            className="text-gray-500 hover:text-gray-700 px-2 py-2 rounded text-sm transition-colors touch-target"
+                            className="text-gray-500 hover:text-gray-700 px-2 py-1.5 sm:py-2 rounded text-xs sm:text-sm transition-colors touch-target"
                           >
                             Clear
                           </button>
@@ -292,7 +282,7 @@ export default function DashboardHeader({
                       
                       <button
                         onClick={() => onSelectAll?.()}
-                        className="text-indigo-600 hover:text-indigo-800 px-2 py-2 rounded text-sm transition-colors touch-target"
+                        className="text-indigo-600 hover:text-indigo-800 px-2 py-1.5 sm:py-2 rounded text-xs sm:text-sm transition-colors touch-target whitespace-nowrap"
                       >
                         Select All
                       </button>
@@ -302,34 +292,34 @@ export default function DashboardHeader({
                   {/* Exit Selection Mode */}
                   <button
                     onClick={() => onToggleSelectionMode?.()}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-1 transition-colors touch-target"
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 transition-colors touch-target text-sm"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Cancel</span>
                   </button>
                 </>
               ) : (
                 <>
                   {/* Search Bar */}
-                  <div className="relative flex-1 max-w-none md:max-w-sm lg:max-w-md xl:max-w-lg">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <div className="relative flex-1 min-w-0 sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg 2xl:max-w-xl">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                     <input
                       type="text"
                       placeholder="Search bookmarks..."
                       value={searchQuery}
                       onChange={(e) => onSearchChange(e.target.value)}
-                      className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm md:text-base"
+                      className="pl-9 sm:pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base transition-all"
                     />
                   </div>
 
                   {/* Action buttons */}
-                  <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 lg:space-x-3">
+                  <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 md:space-x-3 flex-shrink-0">
                     {/* Selection Mode Button */}
                     <button
                       onClick={() => onToggleSelectionMode?.()}
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors border border-gray-300 touch-target"
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center space-x-1.5 sm:space-x-2 transition-colors border border-gray-300 touch-target text-sm whitespace-nowrap"
                     >
-                      <Check className="w-4 h-4" />
+                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Select</span>
                     </button>
                   </div>
