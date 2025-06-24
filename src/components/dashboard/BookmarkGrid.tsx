@@ -11,6 +11,7 @@ interface BookmarkGridProps {
   onSelectionChange?: (id: string, selected: boolean) => void;
   onDeleteBookmark?: (id: string) => void;
   onMarkAsRead?: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
 }
 
 export default function BookmarkGrid({ 
@@ -22,7 +23,8 @@ export default function BookmarkGrid({
   selectedBookmarks = new Set(),
   onSelectionChange,
   onDeleteBookmark,
-  onMarkAsRead
+  onMarkAsRead,
+  onMarkAsUnread
 }: BookmarkGridProps) {
   // Loading State
   if (isLoading) {
@@ -67,6 +69,7 @@ export default function BookmarkGrid({
           onSelectionChange={onSelectionChange}
           onDelete={onDeleteBookmark}
           onMarkAsRead={onMarkAsRead}
+          onMarkAsUnread={onMarkAsUnread}
         />
       ))}
     </div>

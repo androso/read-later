@@ -1,6 +1,6 @@
 import { BookmarkResponse } from '@/types/bookmark';
 import TagBadge from './TagBadge';
-import { Trash2, BookOpen, AlertTriangle, X } from 'lucide-react';
+import { Trash2, BookOpen, AlertTriangle, X, BookmarkCheck } from 'lucide-react';
 import { useState } from 'react';
 
 interface BookmarkCardProps {
@@ -10,6 +10,7 @@ interface BookmarkCardProps {
   onSelectionChange?: (id: string, selected: boolean) => void;
   onDelete?: (id: string) => void;
   onMarkAsRead?: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
 }
 
 export default function BookmarkCard({ 
@@ -18,7 +19,8 @@ export default function BookmarkCard({
   isSelected = false, 
   onSelectionChange, 
   onDelete,
-  onMarkAsRead
+  onMarkAsRead,
+  onMarkAsUnread
 }: BookmarkCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
@@ -62,6 +64,12 @@ export default function BookmarkCard({
     e.preventDefault();
     e.stopPropagation();
     onMarkAsRead?.(bookmark._id);
+  };
+
+  const handleMarkAsUnreadClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onMarkAsUnread?.(bookmark._id);
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -114,6 +122,17 @@ export default function BookmarkCard({
                 title="Mark as read"
               >
                 <BookOpen className="w-4 h-4" />
+              </button>
+            )}
+            
+            {/* Mark as Unread Button (only show for read bookmarks) */}
+            {!bookmark.isUnread && onMarkAsUnread && (
+              <button
+                onClick={handleMarkAsUnreadClick}
+                className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                title="Mark as unread"
+              >
+                <BookmarkCheck className="w-4 h-4" />
               </button>
             )}
             
@@ -340,22 +359,22 @@ export default function BookmarkCard({
                 </div>
               </div>
 
-                             {/* Buttons */}
-               <div className="flex gap-3">
-                 <button
-                   onClick={handleCancelDelete}
-                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                 >
-                   Cancel
-                 </button>
-                 <button
-                   onClick={handleConfirmDelete}
-                   className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                 >
-                   <Trash2 className="w-4 h-4" />
-                   Delete
-                 </button>
-               </div>
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelDelete}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>

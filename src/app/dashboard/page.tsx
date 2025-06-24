@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead } from '@/lib/hooks/useBookmarks';
+import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead, useMarkAsUnread } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import AddBookmarkModal from '@/components/AddBookmarkModal';
 import {
@@ -31,6 +31,8 @@ const popularTags = [
   { name: "Productivity", count: 19 }
 ];
 
+type BookmarkSection = 'all' | 'unread' | 'read';
+
 export default function DashboardPage() {
   const router = useRouter();
   const { isAuthenticated, user, isLoading, logoutMutation } = useAuth();
@@ -40,6 +42,7 @@ export default function DashboardPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
+  const [currentSection, setCurrentSection] = useState<BookmarkSection>('all');
   
   // Selection state
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -48,20 +51,38 @@ export default function DashboardPage() {
   // Debounce search query for API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
-  // Fetch bookmarks from API
+  // Determine filter based on current section
+  const bookmarkFilter: { isUnread?: boolean } = {};
+  if (currentSection === 'unread') {
+    bookmarkFilter.isUnread = true;
+  } else if (currentSection === 'read') {
+    bookmarkFilter.isUnread = false;
+  }
+  
+  // Fetch bookmarks from API with section filter
   const { data: bookmarksData, isLoading: isLoadingBookmarks } = useBookmarks({
     search: debouncedSearchQuery,
     sort: sortBy,
     limit: 20,
+    ...bookmarkFilter,
   });
   
-  // Fetch bookmark count
-  const { data: countData } = useBookmarkCount();
+  // Fetch separate counts for each section
+  const { data: allCountData } = useBookmarkCount();
+  const { data: unreadCountData } = useBookmarks({ 
+    isUnread: true, 
+    limit: 1 
+  });
+  const { data: readCountData } = useBookmarks({ 
+    isUnread: false, 
+    limit: 1 
+  });
   
   // Mutations
   const deleteBookmarkMutation = useDeleteBookmark();
   const bulkDeleteMutation = useBulkDeleteBookmarks();
   const markAsReadMutation = useMarkAsRead();
+  const markAsUnreadMutation = useMarkAsUnread();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -79,6 +100,12 @@ export default function DashboardPage() {
       return () => clearTimeout(timer);
     }
   }, [showSuccessNotification]);
+
+  // Clear selection when switching sections
+  useEffect(() => {
+    setSelectedBookmarks(new Set());
+    setIsSelectionMode(false);
+  }, [currentSection]);
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
@@ -204,6 +231,25 @@ export default function DashboardPage() {
     });
   };
 
+  const handleMarkAsUnread = (id: string) => {
+    markAsUnreadMutation.mutate(id, {
+      onSuccess: () => {
+        setSuccessMessage({
+          title: 'Bookmark marked as unread!',
+          message: 'The bookmark has been moved back to your unread collection.'
+        });
+        setShowSuccessNotification(true);
+      },
+      onError: (error) => {
+        alert(`Failed to mark bookmark as unread: ${error.message}`);
+      }
+    });
+  };
+
+  const handleSectionChange = (section: BookmarkSection) => {
+    setCurrentSection(section);
+  };
+
   // Show loading if checking authentication status
   if (isLoading) {
     return (
@@ -223,7 +269,30 @@ export default function DashboardPage() {
   }
 
   const bookmarks = bookmarksData?.data || [];
-  const totalCount = countData?.count || 0;
+  const allCount = allCountData?.count || 0;
+  const unreadCount = unreadCountData?.pagination?.hasMore ? '20+' : (unreadCountData?.data?.length || 0);
+  const readCount = readCountData?.pagination?.hasMore ? '20+' : (readCountData?.data?.length || 0);
+
+  // Calculate current section count
+  let currentCount = 0;
+  if (currentSection === 'all') {
+    currentCount = allCount;
+  } else if (currentSection === 'unread') {
+    currentCount = typeof unreadCount === 'number' ? unreadCount : parseInt(unreadCount) || 0;
+  } else if (currentSection === 'read') {
+    currentCount = typeof readCount === 'number' ? readCount : parseInt(readCount) || 0;
+  }
+
+  const getSectionTitle = () => {
+    switch (currentSection) {
+      case 'unread':
+        return 'Unread Bookmarks';
+      case 'read':
+        return 'Read Bookmarks';
+      default:
+        return 'All Bookmarks';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -246,12 +315,60 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="p-6">
+        {/* Section Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => handleSectionChange('all')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  currentSection === 'all'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                All Bookmarks
+                <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs">
+                  {allCount}
+                </span>
+              </button>
+              <button
+                onClick={() => handleSectionChange('unread')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  currentSection === 'unread'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Unread
+                <span className="ml-2 bg-blue-100 text-blue-900 py-0.5 px-2.5 rounded-full text-xs">
+                  {unreadCount}
+                </span>
+              </button>
+              <button
+                onClick={() => handleSectionChange('read')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  currentSection === 'read'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Read
+                <span className="ml-2 bg-green-100 text-green-900 py-0.5 px-2.5 rounded-full text-xs">
+                  {readCount}
+                </span>
+              </button>
+            </nav>
+          </div>
+        </div>
+
         {/* Content Header with Controls */}
         <DashboardControls
-          totalCount={totalCount}
+          totalCount={currentCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           onSortChange={handleSortChange}
+          sectionTitle={getSectionTitle()}
         />
 
         {/* Bookmarks Grid */}
@@ -265,6 +382,7 @@ export default function DashboardPage() {
           onSelectionChange={handleSelectionChange}
           onDeleteBookmark={handleDeleteBookmark}
           onMarkAsRead={handleMarkAsRead}
+          onMarkAsUnread={handleMarkAsUnread}
         />
       </main>
 

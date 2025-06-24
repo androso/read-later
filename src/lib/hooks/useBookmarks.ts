@@ -216,3 +216,26 @@ export function useMarkAsRead() {
     },
   });
 }
+
+export function useMarkAsUnread() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await makeAuthenticatedRequest(`/api/bookmarks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isUnread: true }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to mark bookmark as unread');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+  });
+}
