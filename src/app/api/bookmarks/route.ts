@@ -157,6 +157,19 @@ export async function POST(request: NextRequest) {
 		await dbConnect();
 
 		const body = await request.json();
+		
+		// Helper function to truncate description if it exceeds 500 characters
+		const truncateDescription = (desc: string | undefined): string | undefined => {
+			if (!desc) return desc;
+			if (desc.length <= 500) return desc;
+			return desc.substring(0, 497) + '...';
+		};
+
+		// Truncate description before validation to prevent validation errors
+		if (body.description) {
+			body.description = truncateDescription(body.description);
+		}
+
 		const validatedData = createBookmarkSchema.parse(body);
 
 		// Fetch OG metadata if title or image is not provided
@@ -174,11 +187,13 @@ export async function POST(request: NextRequest) {
 				if (metadataResponse.ok) {
 					const metadataResult = await metadataResponse.json();
 					if (metadataResult.success && metadataResult.data) {
-						// Use fetched metadata if not provided in request
+						// Use fetched metadata if not provided in request, with truncation for fetched description
+						const fetchedDescription = truncateDescription(metadataResult.data.description);
+						
 						finalData = {
 							...finalData,
 							title: validatedData.title || metadataResult.data.title || validatedData.url,
-							description: validatedData.description || metadataResult.data.description,
+							description: validatedData.description || fetchedDescription,
 							image: validatedData.image || metadataResult.data.image,
 						};
 					}
