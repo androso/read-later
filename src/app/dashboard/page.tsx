@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks } from '@/lib/hooks/useBookmarks';
+import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import AddBookmarkModal from '@/components/AddBookmarkModal';
 import {
@@ -58,9 +58,10 @@ export default function DashboardPage() {
   // Fetch bookmark count
   const { data: countData } = useBookmarkCount();
   
-  // Delete mutations
+  // Mutations
   const deleteBookmarkMutation = useDeleteBookmark();
   const bulkDeleteMutation = useBulkDeleteBookmarks();
+  const markAsReadMutation = useMarkAsRead();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -188,6 +189,21 @@ export default function DashboardPage() {
     }
   };
 
+  const handleMarkAsRead = (id: string) => {
+    markAsReadMutation.mutate(id, {
+      onSuccess: () => {
+        setSuccessMessage({
+          title: 'Bookmark marked as read!',
+          message: 'The bookmark has been moved to your read collection.'
+        });
+        setShowSuccessNotification(true);
+      },
+      onError: (error) => {
+        alert(`Failed to mark bookmark as read: ${error.message}`);
+      }
+    });
+  };
+
   // Show loading if checking authentication status
   if (isLoading) {
     return (
@@ -248,6 +264,7 @@ export default function DashboardPage() {
           selectedBookmarks={selectedBookmarks}
           onSelectionChange={handleSelectionChange}
           onDeleteBookmark={handleDeleteBookmark}
+          onMarkAsRead={handleMarkAsRead}
         />
       </main>
 

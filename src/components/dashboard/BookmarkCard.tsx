@@ -1,6 +1,6 @@
 import { BookmarkResponse } from '@/types/bookmark';
 import TagBadge from './TagBadge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, BookOpen } from 'lucide-react';
 
 interface BookmarkCardProps {
   bookmark: BookmarkResponse;
@@ -8,6 +8,7 @@ interface BookmarkCardProps {
   isSelected?: boolean;
   onSelectionChange?: (id: string, selected: boolean) => void;
   onDelete?: (id: string) => void;
+  onMarkAsRead?: (id: string) => void;
 }
 
 export default function BookmarkCard({ 
@@ -15,7 +16,8 @@ export default function BookmarkCard({
   isSelectionMode = false, 
   isSelected = false, 
   onSelectionChange, 
-  onDelete 
+  onDelete,
+  onMarkAsRead
 }: BookmarkCardProps) {
   const createdDate = new Date(bookmark.createdAt);
   const daysAgo = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -44,6 +46,12 @@ export default function BookmarkCard({
     onDelete?.(bookmark._id);
   };
 
+  const handleMarkAsReadClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onMarkAsRead?.(bookmark._id);
+  };
+
   const handleCardClick = (e: React.MouseEvent) => {
     if (isSelectionMode) {
       e.preventDefault();
@@ -53,7 +61,7 @@ export default function BookmarkCard({
 
   return (
     <div 
-      className={`bg-white rounded-xl shadow-sm border-2 overflow-hidden hover:shadow-md transition-all cursor-pointer relative ${
+      className={`bg-white rounded-xl shadow-sm border-2 overflow-hidden hover:shadow-md transition-all cursor-pointer relative group ${
         isSelectionMode 
           ? isSelected 
             ? 'border-indigo-500 ring-2 ring-indigo-200' 
@@ -82,16 +90,30 @@ export default function BookmarkCard({
         </div>
       )}
 
-      {/* Delete Button (visible when not in selection mode) */}
-      {!isSelectionMode && onDelete && (
-        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={handleDeleteClick}
-            className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
-            title="Delete bookmark"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+      {/* Action Buttons (visible when not in selection mode) */}
+      {!isSelectionMode && (
+        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+          {/* Mark as Read Button (only show for unread bookmarks) */}
+          {bookmark.isUnread && onMarkAsRead && (
+            <button
+              onClick={handleMarkAsReadClick}
+              className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors"
+              title="Mark as read"
+            >
+              <BookOpen className="w-4 h-4" />
+            </button>
+          )}
+          
+          {/* Delete Button */}
+          {onDelete && (
+            <button
+              onClick={handleDeleteClick}
+              className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+              title="Delete bookmark"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       )}
 
@@ -101,7 +123,7 @@ export default function BookmarkCard({
           href={bookmark.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block group"
+          className="block"
         >
       {/* Bookmark Image */}
       <div className="aspect-video relative overflow-hidden">
