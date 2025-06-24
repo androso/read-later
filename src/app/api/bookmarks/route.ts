@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 						query._id = { $gt: validatedQuery.cursor };
 					}
 				}
-			} catch (error) {
+			} catch (_error) {
 				console.warn("Invalid cursor provided:", validatedQuery.cursor);
 			}
 		}

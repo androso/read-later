@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+// import { Plus } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead, useMarkAsUnread } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -15,22 +15,22 @@ import {
 } from '@/components/dashboard';
 
 // Smart collections data - keeping for now as it's not in the API yet
-const smartCollections = [
-  { name: "All Bookmarks", count: 247, active: true, icon: "⭐" },
-  { name: "Most Read This Month", count: 12, active: false, icon: "🔥" },
-  { name: "Articles < 5 min", count: 89, active: false, icon: "⏱️" },
-  { name: "AI Papers", count: 34, active: false, icon: "🤖" },
-  { name: "Unread", count: 156, active: false, icon: "📖" }
-];
+// const smartCollections = [
+//   { name: "All Bookmarks", count: 247, active: true, icon: "⭐" },
+//   { name: "Most Read This Month", count: 12, active: false, icon: "🔥" },
+//   { name: "Articles < 5 min", count: 89, active: false, icon: "⏱️" },
+//   { name: "AI Papers", count: 34, active: false, icon: "🤖" },
+//   { name: "Unread", count: 156, active: false, icon: "📖" }
+// ];
 
 // Popular tags data - keeping for now as it's not in the API yet
-const popularTags = [
-  { name: "JavaScript", count: 42 },
-  { name: "Design", count: 38 },
-  { name: "Machine Learning", count: 29 },
-  { name: "React", count: 24 },
-  { name: "Productivity", count: 19 }
-];
+// const popularTags = [
+//   { name: "JavaScript", count: 42 },
+//   { name: "Design", count: 38 },
+//   { name: "Machine Learning", count: 29 },
+//   { name: "React", count: 24 },
+//   { name: "Productivity", count: 19 }
+// ];
 
 type BookmarkSection = 'all' | 'unread' | 'read';
 

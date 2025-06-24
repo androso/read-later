@@ -121,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (userData: SignUpUser) => {
       // Extract only the fields needed for the API (excluding confirmPassword)
-      const { confirmPassword, ...apiData } = userData;
+      const { confirmPassword: _, ...apiData } = userData;
       
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return await response.json();
     },
-    onSuccess: (response: RegisterResponse) => {
+    onSuccess: (_response: RegisterResponse) => {
       toast({
         title: "Welcome!",
         description: "Your account has been created successfully.",
@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You've been successfully logged out.",
       });
     },
-    onError: (error: Error) => {
+    onError: (_error: Error) => {
       // Even if the server request fails, clear local storage
       localStorage.removeItem('auth-token');
       queryClient.clear();

@@ -8,14 +8,14 @@ import { updateBookmarkSchema } from "@/lib/validations/bookmark";
 // DELETE /api/bookmarks/[id] - Delete a specific bookmark
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // User ID is guaranteed to be set by middleware
     const userId = request.headers.get("x-user-id")!;
     await dbConnect();
 
-    const bookmarkId = params.id;
+    const { id: bookmarkId } = await params;
 
     // Find and delete the bookmark, ensuring it belongs to the user
     const deletedBookmark = await Bookmark.findOneAndDelete({
@@ -55,14 +55,14 @@ export async function DELETE(
 // GET /api/bookmarks/[id] - Get a specific bookmark
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // User ID is guaranteed to be set by middleware
     const userId = request.headers.get("x-user-id")!;
     await dbConnect();
 
-    const bookmarkId = params.id;
+    const { id: bookmarkId } = await params;
 
     // Find the bookmark, ensuring it belongs to the user
     const bookmark = await Bookmark.findOne({
@@ -103,14 +103,14 @@ export async function GET(
 // PATCH /api/bookmarks/[id] - Update a specific bookmark
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // User ID is guaranteed to be set by middleware
     const userId = request.headers.get("x-user-id")!;
     await dbConnect();
 
-    const bookmarkId = params.id;
+    const { id: bookmarkId } = await params;
     const body = await request.json();
     
     const validatedData = updateBookmarkSchema.parse(body);
@@ -200,8 +200,8 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating bookmark:", error);
 
-    if (error instanceof Error && error.name === "ValidationError") {
-      const mongooseError = error as { errors: Record<string, { path: string; message: string }> };
+    if (error instanceof Error && error.name === "ValidationError" && 'errors' in error) {
+      const mongooseError = error as Error & { errors: Record<string, { path: string; message: string }> };
       const errors = Object.values(mongooseError.errors).map((err) => ({
         field: err.path,
         message: err.message,

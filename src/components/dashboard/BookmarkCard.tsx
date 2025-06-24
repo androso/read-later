@@ -329,7 +329,7 @@ export default function BookmarkCard({
             {/* Content */}
             <div className="p-4 sm:p-6">
               <p className="text-sm sm:text-base text-gray-600 mb-4">
-                Are you sure you want to delete <span className="font-medium">"{bookmark.title}"</span>? 
+                Are you sure you want to delete <span className="font-medium">&quot;{bookmark.title}&quot;</span>? 
                 This action cannot be undone.
               </p>
               

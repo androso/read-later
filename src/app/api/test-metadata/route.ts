@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ogs from 'open-graph-scraper';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Test with the Substack URL that's failing
     const testUrl = 'https://substack.com'; // We'll use this as a test

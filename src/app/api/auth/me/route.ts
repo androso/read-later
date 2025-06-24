@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     let decoded;
     try {
       decoded = jwt.verify(token, jwtSecret) as any;
-    } catch (jwtError) {
+    } catch (_jwtError) {
       return NextResponse.json(
         {
           success: false,

@@ -59,7 +59,7 @@ export default function AddBookmarkModal({ isOpen, onClose, onSuccess }: AddBook
             description: prev.description || metadata.description || '',
           }));
         }
-      } catch (error) {
+      } catch (_error) {
         // Invalid URL, do nothing
         setMetadataPreview(null);
       }

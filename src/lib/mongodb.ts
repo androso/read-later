@@ -18,7 +18,7 @@ interface MongooseCache {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached: MongooseCache = {
+const cached: MongooseCache = {
   conn: null,
   promise: null,
 };
