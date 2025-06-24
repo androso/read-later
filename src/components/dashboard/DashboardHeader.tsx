@@ -59,7 +59,7 @@ export default function DashboardHeader({
                     <button
                       onClick={onDeleteSelected}
                       disabled={isDeleting}
-                      className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-1 rounded text-sm flex items-center space-x-1 transition-colors"
+                      className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-1 rounded text-sm flex items-center space-x-1 transition-colors cursor-pointer"
                     >
                       {isDeleting ? (
                         <>
@@ -76,7 +76,7 @@ export default function DashboardHeader({
                     
                     <button
                       onClick={onClearSelection}
-                      className="text-gray-500 hover:text-gray-700 px-2 py-1 rounded text-sm transition-colors"
+                      className="text-gray-500 hover:text-gray-700 px-2 py-1 rounded text-sm transition-colors cursor-pointer"
                     >
                       Clear
                     </button>
@@ -85,7 +85,7 @@ export default function DashboardHeader({
                 
                 <button
                   onClick={onSelectAll}
-                  className="text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded text-sm transition-colors"
+                  className="text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded text-sm transition-colors cursor-pointer"
                 >
                   Select All
                 </button>
@@ -94,7 +94,7 @@ export default function DashboardHeader({
               {/* Exit Selection Mode */}
               <button
                 onClick={onToggleSelectionMode}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
                 <span>Cancel</span>
@@ -122,7 +122,7 @@ export default function DashboardHeader({
               {/* Selection Mode Button */}
               <button
                 onClick={onToggleSelectionMode}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors border border-gray-300"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors border border-gray-300 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>Select</span>
@@ -131,7 +131,7 @@ export default function DashboardHeader({
               {/* Add Bookmark Button */}
               <button 
                 onClick={onAddBookmark}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Bookmark</span>
@@ -141,7 +141,7 @@ export default function DashboardHeader({
               <button
                 onClick={onLogout}
                 disabled={isLoggingOut}
-                className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
               >
                 {isLoggingOut ? (
                   <>
