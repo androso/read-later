@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 // import { Plus } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useBookmarks, useBookmarkCount, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead, useMarkAsUnread } from '@/lib/hooks/useBookmarks';
+import { useBookmarks, useBookmarkCount, useBookmarkCountWithFilter, useDeleteBookmark, useBulkDeleteBookmarks, useMarkAsRead, useMarkAsUnread } from '@/lib/hooks/useBookmarks';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import AddBookmarkModal from '@/components/AddBookmarkModal';
 import {
@@ -69,14 +69,8 @@ export default function DashboardPage() {
   
   // Fetch separate counts for each section
   const { data: allCountData } = useBookmarkCount();
-  const { data: unreadCountData } = useBookmarks({ 
-    isUnread: true, 
-    limit: 1 
-  });
-  const { data: readCountData } = useBookmarks({ 
-    isUnread: false, 
-    limit: 1 
-  });
+  const { data: unreadCountData } = useBookmarkCountWithFilter({ isUnread: true });
+  const { data: readCountData } = useBookmarkCountWithFilter({ isUnread: false });
   
   // Mutations
   const deleteBookmarkMutation = useDeleteBookmark();
@@ -266,17 +260,17 @@ export default function DashboardPage() {
 
   const bookmarks = bookmarksData?.data || [];
   const allCount = allCountData?.count || 0;
-  const unreadCount = unreadCountData?.pagination?.hasMore ? '20+' : (unreadCountData?.data?.length || 0);
-  const readCount = readCountData?.pagination?.hasMore ? '20+' : (readCountData?.data?.length || 0);
+  const unreadCount = unreadCountData?.count || 0;
+  const readCount = readCountData?.count || 0;
 
   // Calculate current section count
   let currentCount = 0;
   if (currentSection === 'all') {
     currentCount = allCount;
   } else if (currentSection === 'unread') {
-    currentCount = typeof unreadCount === 'number' ? unreadCount : parseInt(unreadCount) || 0;
+    currentCount = unreadCount;
   } else if (currentSection === 'read') {
-    currentCount = typeof readCount === 'number' ? readCount : parseInt(readCount) || 0;
+    currentCount = readCount;
   }
 
   const getSectionTitle = () => {

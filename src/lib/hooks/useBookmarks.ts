@@ -81,6 +81,28 @@ export function useBookmarkCount() {
   });
 }
 
+export function useBookmarkCountWithFilter(params: { isUnread?: boolean } = {}) {
+  const queryKey = ['bookmarks', 'count', params];
+
+  return useQuery<{ success: boolean; count: number }>({
+    queryKey,
+    queryFn: async () => {
+      const searchParams = new URLSearchParams();
+      
+      if (params.isUnread !== undefined) searchParams.append('isUnread', params.isUnread.toString());
+
+      const response = await makeAuthenticatedRequest(`/api/bookmarks/count?${searchParams.toString()}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookmark count');
+      }
+
+      return response.json();
+    },
+    staleTime: 1 * 60 * 1000, // 1 minute (shorter since counts can change frequently)
+  });
+}
+
 export function useCreateBookmark() {
   const queryClient = useQueryClient();
 
