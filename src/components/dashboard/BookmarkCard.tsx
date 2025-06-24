@@ -164,13 +164,6 @@ export default function BookmarkCard({
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-black opacity-5"></div>
-        
-        {/* Unread Badge */}
-        {bookmark.isUnread && (
-          <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-medium text-indigo-600 backdrop-blur-sm">
-            Unread
-          </div>
-        )}
       </div>
 
       {/* Bookmark Content */}
@@ -245,13 +238,6 @@ export default function BookmarkCard({
             
             {/* Overlay */}
             <div className="absolute inset-0 bg-black opacity-5"></div>
-            
-            {/* Unread Badge */}
-            {bookmark.isUnread && (
-              <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-medium text-indigo-600 backdrop-blur-sm">
-                Unread
-              </div>
-            )}
           </div>
 
           {/* Bookmark Content */}
