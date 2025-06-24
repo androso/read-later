@@ -359,6 +359,8 @@ export default function DashboardPage() {
           sectionTitle={getSectionTitle()}
           onSortChange={handleSortChange}
           onAddBookmark={handleAddBookmark}
+          isSelectionMode={isSelectionMode}
+          onToggleSelectionMode={handleToggleSelectionMode}
         />
 
         {/* Bookmarks Grid */}
