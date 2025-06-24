@@ -4,7 +4,6 @@ import BookmarkCard from './BookmarkCard';
 interface BookmarkGridProps {
   bookmarks: BookmarkResponse[];
   isLoading: boolean;
-  viewMode: 'grid' | 'list';
   searchQuery: string;
   isSelectionMode?: boolean;
   selectedBookmarks?: Set<string>;
@@ -17,7 +16,6 @@ interface BookmarkGridProps {
 export default function BookmarkGrid({ 
   bookmarks, 
   isLoading, 
-  viewMode, 
   searchQuery,
   isSelectionMode = false,
   selectedBookmarks = new Set(),
@@ -59,7 +57,7 @@ export default function BookmarkGrid({
 
   // Bookmarks Grid
   return (
-    <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {bookmarks.map((bookmark) => (
         <BookmarkCard 
           key={bookmark._id} 

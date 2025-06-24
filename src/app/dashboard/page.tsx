@@ -36,7 +36,6 @@ type BookmarkSection = 'all' | 'unread' | 'read';
 export default function DashboardPage() {
   const router = useRouter();
   const { isAuthenticated, user, isLoading, logoutMutation } = useAuth();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('-createdAt');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -144,10 +143,6 @@ export default function DashboardPage() {
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-  };
-
-  const handleViewModeChange = (mode: 'grid' | 'list') => {
-    setViewMode(mode);
   };
 
   const handleToggleSelectionMode = () => {
@@ -365,17 +360,14 @@ export default function DashboardPage() {
         {/* Content Header with Controls */}
         <DashboardControls
           totalCount={currentCount}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
-          onSortChange={handleSortChange}
           sectionTitle={getSectionTitle()}
+          onSortChange={handleSortChange}
         />
 
         {/* Bookmarks Grid */}
         <BookmarkGrid
           bookmarks={bookmarks}
           isLoading={isLoadingBookmarks}
-          viewMode={viewMode}
           searchQuery={searchQuery}
           isSelectionMode={isSelectionMode}
           selectedBookmarks={selectedBookmarks}
