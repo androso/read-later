@@ -41,12 +41,7 @@ export default function SignInPage() {
   }, [isAuthenticated, isLoading, router]);
 
   const onSubmit = async (data: SignInUser) => {
-    loginMutation.mutate(data, {
-      onSuccess: () => {
-        // Redirect to dashboard on successful login
-        router.push('/dashboard');
-      },
-    });
+    loginMutation.mutate(data);
   };
 
   // Show loading while checking authentication status

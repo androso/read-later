@@ -104,10 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: response.data.user,
         });
       }
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in.",
-      });
     },
     onError: (error: Error) => {
       toast({
@@ -160,21 +156,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/auth/me"], null);
     },
     onSuccess: () => {
-      toast({
-        title: "Logged out",
-        description: "You've been successfully logged out.",
-      });
+      // User will be redirected, no toast needed
     },
     onError: (_error: Error) => {
       // Even if the server request fails, clear local storage
       localStorage.removeItem('auth-token');
       queryClient.clear();
       queryClient.setQueryData(["/api/auth/me"], null);
-      
-      toast({
-        title: "Logout completed",
-        description: "You've been logged out locally.",
-      });
     },
   });
 
